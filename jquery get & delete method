@@ -1,0 +1,83 @@
+1.  query code of set value
+          Controller:
+        public JsonResult getemployee(int id)
+        {
+
+            var emp = db.tbl_employee.Where(i => i.ID == id).FirstOrDefault();
+            var hobby = (emp.HOBBY);             
+            var spl = hobby.Split(',');
+
+            return Json(emp, JsonRequestBehavior.AllowGet);
+        }
+      View:
+          function opendialog(id)
+    {
+        $('input:checkbox').removeAttr('checked');
+        $("#add").addClass('hidden');
+        $("#update").removeClass('hidden');
+        $.ajax({
+            url: '/Home/getemployee/' + id,
+            dataType: 'json',
+            type: 'POST',
+            success: function (data) {
+                $('#hide').val(data.ID);
+                $('#name').val(data.NAME);
+                $('#email').val(data.EMAIL);
+                $('#password').val(data.PASSWORD);
+                $('#number').val(data.NUMBER);
+                var img = data.IMAGE;
+                        var path = "/img/" + img;
+                $('#image').attr('src', path);
+                var date = data.BIRTHDATE;
+                var str = moment(date).format("DD/MM/YYYY");
+                $('#datepicker').val(str);
+
+                var value = data.GENDER;
+                $("input[name=GENDER][value=" + value + "]").prop('checked', true);
+                var value2 = data.CITY;
+                          $("#city").val(value2).change();
+                           var check = data.HOBBY;
+                   $("input[name=HOBBY][value=" + check + "]").attr('checked', true);
+                       }
+        });
+    }
+2. Delete with ajax
+   Controller:
+    public JsonResult delete(int id,string emp_del)
+        {
+            if(emp_del !=null)
+            {
+                var employee = db.tbl_employee.Where(i => i.ID == id).SingleOrDefault();
+                db.tbl_employee.Remove(employee);
+                db.SaveChanges();
+            }
+            return Json('s');
+        }
+View:
+<script>
+    function openDialog2(id,del)
+    {
+        if(confirm("Are you sure to delete Record?"))
+        {
+            var deletes=
+            {
+                ID:id,
+                emp_del:del
+            }
+            {
+                $.ajax({
+                    url: '/Home/delete/',
+                    data: JSON.stringify(deletes),
+                    type: 'post',
+                    contentType: 'application/json; charset=utf-8',
+                    success: function () {
+                        $('#row_' + id).hide();
+                    }
+                })
+            }
+        }
+    }
+</script>
+
+      
+
