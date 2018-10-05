@@ -1,0 +1,302 @@
+excel file upload......
+
+
+
+  public void Enterdata(string path)
+        {
+            string con = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path + ";Extended Properties='Excel 8.0;HDR=Yes;'";
+            TblStudent stud = new TblStudent();
+
+            using (OleDbConnection connection = new OleDbConnection(con))
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand("select * from [Sheet1$]", connection);
+                List<dynamic> duplicate = new List<dynamic>();
+                using (OleDbDataReader dr = command.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        stud.Email = dr[1].ToString();
+                        stud.Mobile = dr[2].ToString();
+                        if (db.TblStudents.Any(k =>k.Mobile == stud.Mobile))
+                        {
+
+                            var data = db.TblStudents.Where(i => i.Mobile == stud.Mobile).FirstOrDefault();
+                            duplicate.Add(data);
+
+                        }
+                        else
+                        {
+
+                            stud.Name = dr[0].ToString();
+
+                            stud.Email = dr[1].ToString();
+                            stud.Mobile = dr[2].ToString();
+                          
+                            stud.Branch = dr[3].ToString();
+                            stud.College = dr[4].ToString();
+                            stud.Source = dr[5].ToString();
+                            if (dr[6].ToString() != null && dr[6].ToString() != "")
+                            {
+                                stud.CallStatus = dr[6].ToString();
+                            }
+                            else
+                            {
+                              
+                                stud.CallStatus = "Pending";
+                            }
+                            stud.CallRemark = dr[7].ToString();
+                            if(dr[8].ToString() != null && dr[8].ToString() != "")
+                            { 
+                            stud.IsInterested = dr[8].ToString();
+                            }
+                            else
+                            {
+                                stud.IsInterested = "No";
+                            }
+                            stud.InterestedCourse = dr[9].ToString();
+                            if (dr[10].ToString() != null && dr[10].ToString() != "")
+                            {
+
+                                stud.VisitingAppxDate_ = Convert.ToDateTime(dr[10].ToString());
+                            }
+                            else
+                            {
+                             
+                            }
+                            if(dr[11].ToString() != null && dr[11].ToString() != "")
+                            { 
+                            stud.IsVisited_ = dr[11].ToString();
+                            }
+                            else
+                            {
+                                stud.IsVisited_ = "No";
+                            }
+                            stud.JoiningDesc_ = dr[12].ToString();
+                            if (dr[13].ToString() != null && dr[13].ToString() != "")
+                            {
+                                stud.FutureReferenceStatus_ = dr[13].ToString();
+                            }
+                            else
+                            {
+                                stud.FutureReferenceStatus_ = "No";
+                            }
+                            stud.Comment = dr[14].ToString();
+                           
+
+                            stud.CreatedDate = DateTime.Now;
+                            db.TblStudents.Add(stud);
+                            db.SaveChanges();
+                        }
+
+                    }
+                    ViewBag.dup = duplicate;
+                }
+            }
+        }
+
+excel file save karva mate .....
+
+   public ActionResult Create(HttpPostedFileBase excelfile, TblStudent data)
+        {
+
+            //var duplicateTRN = db.TblStudents.Where(d => d.Email == data.Email).FirstOrDefault();
+            //if (duplicateTRN != null)
+            //{
+            //    var errorMessage = String.Format("TRN is already exist.", duplicateTRN);
+            //    ModelState.AddModelError(string.Empty, errorMessage);
+            //}
+
+            if (excelfile == null || excelfile.ContentLength == 0)
+            {
+                return View("Index");
+            }
+            else
+            {
+                if (excelfile.FileName.EndsWith("xls") || excelfile.FileName.EndsWith("xlsx"))
+                {
+
+                    string path = Server.MapPath("~/ExcelFiles/" + excelfile.FileName);
+                    if (System.IO.File.Exists(path))
+                        System.IO.File.Delete(path);
+
+                    excelfile.SaveAs(path);
+                    Enterdata(path);
+                    return View();
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+
+            }
+        }
+
+
+update fuction .....
+
+    public void update(int id, string name, string clst, string visited, string join)
+        {
+            var tbl = db.TblStudents.Where(i => i.Id == id).SingleOrDefault();
+            if (name != null && name != "")
+            {
+                tbl.FutureReferenceStatus_ = name;
+                tbl.IsInterested = name;
+                if (name != "")
+                {
+                    tbl.ModifiedDate = DateTime.Now;
+                   
+                }
+                else
+                {
+                    tbl.ModifiedDate = null;
+                   
+                }
+                db.SaveChanges();
+            }
+            else if (clst != null && clst != "")
+            {
+                tbl.CallStatus = clst;
+                if (clst != "Pending")
+                {
+                    tbl.ModifiedDate = DateTime.Now;
+                    tbl.CallDate = DateTime.Now;
+                }
+                else
+                {
+                    tbl.ModifiedDate = DateTime.Now;
+                    tbl.CallDate = null;
+                }
+                db.SaveChanges();
+            }
+            else if (visited != null && visited != "")
+            {
+                tbl.IsVisited_ = visited;
+                if (visited != "")
+                {
+                    tbl.ModifiedDate = DateTime.Now;
+                }
+                else
+                {
+                    tbl.ModifiedDate = DateTime.Now;
+                }
+                db.SaveChanges();
+            }
+            else if (join != null && join != "")
+            {
+                tbl.JoiningDesc_ = join;
+
+                db.SaveChanges();
+            }
+            if (db.TblStudents.Where(y => y.CallStatus.Equals("Ans")).ToList() != null)
+            {
+                tbl.CallDate = DateTime.Now;
+            }
+        }
+
+
+
+axaj function .....
+
+
+
+    function fn(id, a,b,c,d ) {
+       // alert('3');
+      //  alert(id +""+a+""+b+""+c+""+d);
+        var Student =
+        {
+            "Id": id,
+            "name": a,
+            "clst": b,
+            "visited": c,
+            "join":d
+
+        };
+        $.ajax({
+
+            url: '/Home/update/',
+            data: JSON.stringify(Student),
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            success: function (result) {
+                if (b == 'Pending') {
+                    $("#CD_" + id).text('');
+                }
+                else if (b != 'Pending')
+                {
+                    $("#CD_" + id).text('@DateTime.Now');
+                   
+                }
+                if (b != '') {
+                    $("#MD_" + id).text('@DateTime.Today');
+                }
+                if (a  != '') {
+                    $("#MD_" + id).text('@DateTime.Today');
+                }
+                if (c != '') {
+                        $("#MD_" + id).text('@DateTime.Today');
+                }
+                isSuccess = result;
+
+            },
+            error: function (result) {
+                isSuccess = result;
+            }
+
+        })
+        // save(id.id)
+    }
+
+</script>
+
+
+
+count total number record......
+
+  public ActionResult Dashboard(TblStudent data, string radio)
+        {
+            List<TblStudent> systems;
+            var query = db.TblStudents.Select(c => c.Id).ToList();
+            foreach (var sid in query)
+            {
+                systems = db.TblStudents.Where(c => c.Id == sid).ToList();
+            }
+            int count = db.TblStudents.Count();//Here you will  get count
+            ViewBag.Counts = count;
+
+            var count_pending = db.TblStudents.Where(y => y.CallStatus.Equals("Pending")).Count();
+            ViewBag.count_pending = count_pending;
+
+            var count_Ans = db.TblStudents.Where(y => y.CallStatus.Equals("Ans")).Count();
+            ViewBag.count_ans = count_Ans;
+
+            var count_noAns = db.TblStudents.Where(y => y.CallStatus.Equals("NoAns")).Count();
+            ViewBag.count_Noans = count_noAns;
+
+            var CallAgain = db.TblStudents.Where(y => y.CallStatus.Equals("CallAgain")).Count();
+            ViewBag.callagain = CallAgain;
+
+            var count_Intrested1 = db.TblStudents.Where(y => y.IsInterested.Equals("Yes")).Count();
+            ViewBag.count_Intrested1 = count_Intrested1;
+
+            var count_Intersted2 = db.TblStudents.Where(y => y.IsInterested.Equals("No")).Count();
+            ViewBag.count_Intersted2 = count_Intersted2;
+
+
+
+            var today = db.TblStudents.Where(y => y.CallStatus.Equals("Ans") || y.CallStatus.Equals("NoAns")).ToList();
+            //if (data.CallDate != null)
+            //{
+                var calltoday = today.Where(y => y.CallDate.Value.Date == DateTime.Now.Date).ToList();
+                ViewBag.todays = calltoday.Count();
+           // }
+           //else
+           // {
+
+           //     var calltoday = today.Where(y => y.CallDate.Value.Date == DateTime.Now.Date).ToList();
+           //     ViewBag.todays = calltoday.Count();
+           // }
+          
+            return View();
+
+        }
