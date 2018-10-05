@@ -2,12 +2,9 @@
           Controller:
         public JsonResult getemployee(int id)
         {
-
+            db.Configuration.ProxyCreationEnabled = false;
             var emp = db.tbl_employee.Where(i => i.ID == id).FirstOrDefault();
-            var hobby = (emp.HOBBY);             
-            var spl = hobby.Split(',');
-
-            return Json(emp, JsonRequestBehavior.AllowGet);
+           return Json(emp, JsonRequestBehavior.AllowGet);
         }
       View:
           function opendialog(id)
@@ -31,7 +28,7 @@
                 var date = data.BIRTHDATE;
                 var str = moment(date).format("DD/MM/YYYY");
                 $('#datepicker').val(str);
-
+                // radio butto
                 var value = data.GENDER;
                 $("input[name=GENDER][value=" + value + "]").prop('checked', true);
                 var value2 = data.CITY;
