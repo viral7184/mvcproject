@@ -22,24 +22,31 @@
                 $('#email').val(data.EMAIL);
                 $('#password').val(data.PASSWORD);
                 $('#number').val(data.NUMBER);
+                
                 var img = data.IMAGE;
-                        var path = "/img/" + img;
+                var path = "/img/" + img;
                 $('#image').attr('src', path);
+                
+                //edit date
                 var date = data.BIRTHDATE;
-                var str = moment(date).format("DD/MM/YYYY");
+                var str = moment(date).format("DD/MM/YYYY");                
                 $('#datepicker').val(str);
-                // radio butto
+                
+                
+                // radio button
                 var value = data.GENDER;
                 $("input[name=GENDER][value=" + value + "]").prop('checked', true);
+                
+                //dropdown
                 var value2 = data.CITY;
-                          $("#city").val(value2).change();
-                           var check = data.HOBBY;
+                   $("#city").val(value2).change();
+                   var check = data.HOBBY;
                    $("input[name=HOBBY][value=" + check + "]").attr('checked', true);
                        }
         });
     }
 2. Delete with ajax
-   Controller:
+   => Controller:
     public JsonResult delete(int id,string emp_del)
         {
             if(emp_del !=null)
@@ -50,7 +57,12 @@
             }
             return Json('s');
         }
-View:
+        
+        
+       
+✔view:
+
+ <a href="" onclick="openDialog2(@item.ID,'del')" data-toggle="modal" data-target="#modal-default2">Delete</a>
 <script>
     function openDialog2(id,del)
     {
