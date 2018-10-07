@@ -1,0 +1,57 @@
+  public ActionResult Login(login data)
+        {
+            try
+            {
+                var users = db.logins.Where(i => i.EMAIL == data.EMAIL && i.PASSWORD == data.PASSWORD).FirstOrDefault();
+               
+                if (users == null)
+                {
+                  
+                    TempData["msg"] = "Email id or Password is Wrong";
+                   
+                    return RedirectToAction("Login");
+                }
+                else if (users.IS_ACTIVE == false)
+                {
+                    TempData["msg"] = "Your Account is Deactive Please Contact to administrator";
+                    return RedirectToAction("Login");
+                }
+
+                else
+                {
+                    Session["login"] = users.ID;
+                    Session["login2"] = users.NAME;
+                    if (users.ID > 0)
+                    {
+                        users.LAST_LOGIN = DateTime.Now;
+                    }
+                    db.SaveChanges();
+                    return RedirectToAction("configuration");
+                }
+                  
+               
+                
+                
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+        }
+        [AllowAnonymous]
+        public ActionResult logout()
+        {
+            try
+            {
+                Session.Abandon();
+                Session.Clear();
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+            return RedirectToAction("Login");
+        }
