@@ -1,0 +1,95 @@
+ <div class="box-body collapse in" style="overflow-x: scroll;">
+                <table id="fileTable" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="fileTable_info">
+                    <thead>
+                        <tr>
+                            <th>SR NO</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Create Date</th>
+                            <th>Updated Date</th>
+                            <th>Is Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                        <tbody>
+                            @{int i = 1;}
+                            @foreach (var item in ViewBag.admin)
+                            {
+
+                                <tr id="row_@item.ID">
+                                    <td>
+                                        <span>@i</span>
+                                    </td>
+
+                                    <td>
+                                        @item.NAME
+                                    </td>
+
+                                    <td>
+                                        @item.EMAIL
+                                    </td>
+                                    <td>
+                                        @item.USERNAME
+                                    </td>
+                                    <td>
+                                        @item.PASSWORD
+                                    </td>
+
+
+
+                                    <td>
+                                        @item.CREATED_DATE.ToShortDateString()<br />
+                                        BY:
+
+                                        <b>  @Session["login2"]</b>
+
+                                    </td>
+
+                                    <td>
+                                        @if (item.UPDATED_DATE != null)
+                                        {
+                                            @item.UPDATED_DATE.ToShortDateString()<br />
+                                        }
+                                        @if (item.UPDATED_BY != null)
+                                        {
+                                            <span> BY:</span>
+
+
+                                            <b>  @Session["login2"]</b>
+
+                                        }
+                                        else
+                                        {
+                                        }
+                                    </td>
+                                    <td>
+
+                                        @if (item.IS_ACTIVE == true)
+                                        {
+                                            <span>Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span>No</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                          <a onclick="OpenDialog(@item.ID)" style="display:inline" data-toggle="modal" data-target="#myModal" type="button"> <i class="fa fa-edit"></i></a>
+                                        <a style="display:inline" class="hide_me" onclick="Delete(@item.ID,'del')"> &nbsp; <i class="fa fa-trash"></i> </a>
+                                    </td>
+
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+
+
+                </table>
+            </div>
+            
+            
+            
+            
